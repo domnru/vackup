@@ -1,9 +1,11 @@
 services:
   vackup:
     image: vackup:latest
-    platform: linux/amd64
     environment:
-      - PERIODICALLY_SECONDS=20
+      # - PERIODICALLY_SECONDS=6000
+      - TIME_UTC=12:00
+      # - SKIPS=7 # Backup every 7 times. Ex: Every Week at the day the container starts at 11:55 UTC 
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
     volumes:
       - ./volumes:/volumes:rw
       - ./archives:/archives:rw

@@ -8,6 +8,8 @@ enum DurationMode {
 }
 
 fn main() -> ! {
+    let encryption_key: String = env::var("ENCRYPTION_KEY").expect("ENCRYPTION_KEY should be set");
+
     let duration_mode: DurationMode = match env::var("TIME_UTC") {
         Ok(v) => {
             let skips: u64 = get_u64_from_env("SKIPS").unwrap_or(0);
@@ -25,7 +27,7 @@ fn main() -> ! {
             println!("Using perdiodically mode with {} seconds", seconds);
             let duration = Duration::from_secs(seconds);
             loop {
-                backup();
+                backup(&encryption_key);
                 thread::sleep(duration);
             }
         }
@@ -40,7 +42,7 @@ fn main() -> ! {
                 let now = OffsetDateTime::now_utc();
                 if hour == now.hour() && minute == now.minute() {
                     if skips <= skips_count {
-                        backup();
+                        backup(&encryption_key);
                         skips_count = 0;
                     } else {
                         skips_count += 1;
@@ -105,7 +107,7 @@ fn get_directories_to_backup() -> Vec<String> {
     return paths;
 }
 
-fn backup() {
+fn backup(key: &str) {
     let dirs: Vec<String> = get_directories_to_backup();
     if dirs.len() == 0 { 
         println!("Nothing to backup");
@@ -115,7 +117,7 @@ fn backup() {
     for dir in dirs {
         let dst_dir: String = dir.replace("/", "_");
         println!("Backing up {} to {}", dir, dst_dir);
-        compress_to_7z(&dir, &dst_dir, "key");
+        compress_to_7z(&dir, &dst_dir, key);
     }
     println!("Finished Backup!");
 }
