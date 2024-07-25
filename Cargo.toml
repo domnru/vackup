@@ -1,0 +1,16 @@
+[package]
+name = "vackup"
+version = "0.1.0"
+edition = "2021"
+authors = ["domnru"]
+
+[profile.release]
+panic = "abort"
+lto = true
+opt-level = 3
+incremental = false
+strip = true 
+codegen-units = 1
+
+[dependencies]
+time = "0.3.36"

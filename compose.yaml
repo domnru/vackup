@@ -1,0 +1,9 @@
+services:
+  vackup:
+    image: vackup:latest
+    platform: linux/amd64
+    environment:
+      - PERIODICALLY_SECONDS=20
+    volumes:
+      - ./volumes:/volumes:rw
+      - ./archives:/archives:rw
