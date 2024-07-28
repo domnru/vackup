@@ -4,8 +4,8 @@ services:
     build: 
       dockerfile: x86.musl.Dockerfile
     environment:
-      # - PERIODICALLY_SECONDS=20
-      - TIME_UTC=12:00
+      # - PERIODICALLY_SECONDS=20 # Run compress and encryption every 20 seconds
+      - TIME_UTC=12:00 # Run compress and encryption every day at 12:00 UTC
       # - SKIPS=7 # Backup every 7 times. Ex: Every Week at the day the container starts at 11:55 UTC 
       - ENCRYPTION_KEY=CHANGEME
     volumes:
