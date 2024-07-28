@@ -1,6 +1,7 @@
-use std::{env, fs, process::{Command, Output}, thread, time::Duration};
+use std::{env, fs, thread, time::Duration};
 
 use time::OffsetDateTime;
+use sevenz_rust;
 
 enum DurationMode {
     PeriodicallySeconds(u64),
@@ -8,7 +9,10 @@ enum DurationMode {
 }
 
 fn main() -> ! {
-    let encryption_key: String = env::var("ENCRYPTION_KEY").expect("ENCRYPTION_KEY should be set");
+    let encryption_key: String = env::var("ENCRYPTION_KEY").unwrap_or("".to_owned());
+    if encryption_key.is_empty() {
+        println!("!!NO ENCRYPTION_KEY WAS SET. PROGRAMM WILL COMPRESS WITHOUT ENCRYPTION!!");
+    }
 
     let duration_mode: DurationMode = match env::var("TIME_UTC") {
         Ok(v) => {
@@ -87,12 +91,13 @@ fn extract_time_from_string(time: &str) -> (u8, u8) {
     return (hour, minute);
 }
 
-fn compress_to_7z(src_dir: &str, dst_dir: &str, key: &str) -> Output {
-    Command::new("/bin/sh")
-    .arg("-c")
-    .arg(format!("7z a -t7z -m0=lzma2 -mx=9 -mfb=64 -md=32m -ms=on -mhe=on -p'{}' /archives/{}.7z {}", key, dst_dir, src_dir))
-    .output()
-    .expect("failed to execute process")
+fn compress_to_7z(src_dir: &str, dst_dir: &str, key: &str) {
+    if let Err(e) = match key.is_empty() {
+        true => sevenz_rust::compress_to_path(src_dir, dst_dir),
+        false => sevenz_rust::compress_to_path_encrypted(src_dir, dst_dir, key.into()),
+    } {
+        eprintln!("{}", e);
+    }
 }
 
 fn get_directories_to_backup() -> Vec<String> {
@@ -116,7 +121,12 @@ fn backup(key: &str) {
     println!("Starting Backup!");
     for dir in dirs {
         let dst_dir: String = dir.replace("/", "_");
-        println!("Backing up {} to {}", dir, dst_dir);
+        let dst_dir: String = format!("/archives/{}.7z", dst_dir);
+        if key.is_empty() {
+            println!("Compressing {} to {} WITHOUT ENCRYPTION", dir, dst_dir);
+        } else {
+            println!("Compressing {} to {} WITH ENCRYPTION", dir, dst_dir);
+        }
         compress_to_7z(&dir, &dst_dir, key);
     }
     println!("Finished Backup!");
