@@ -1,11 +1,13 @@
 services:
   vackup:
     image: vackup:latest
+    build: 
+      dockerfile: x86.musl.Dockerfile
     environment:
-      # - PERIODICALLY_SECONDS=6000
+      # - PERIODICALLY_SECONDS=20
       - TIME_UTC=12:00
       # - SKIPS=7 # Backup every 7 times. Ex: Every Week at the day the container starts at 11:55 UTC 
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - ENCRYPTION_KEY=CHANGEME
     volumes:
       - ./volumes:/volumes:rw
       - ./archives:/archives:rw
