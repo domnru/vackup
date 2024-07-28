@@ -14,3 +14,4 @@ codegen-units = 1
 
 [dependencies]
 time = "0.3.36"
+sevenz-rust = { version="0.6.1", features=[ "aes256" ] }
